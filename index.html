@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Cloud Island POC</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      background: linear-gradient(to top, #a0d8ef, #ffffff);
+      touch-action: none;
+    }
+    canvas {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let width, height;
+    function resizeCanvas() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const player = {
+      x: 100,
+      y: 100,
+      vx: 0,
+      vy: 0,
+      width: 32,
+      height: 32,
+      grounded: false
+    };
+
+    const gravity = 0.5;
+    const moveSpeed = 3;
+    const jumpForce = -10;
+
+    const platforms = [
+      { x: 0, y: height - 60, width: width, height: 60 },
+      { x: 100, y: height - 150, width: 120, height: 20 },
+    ];
+
+    let keys = { left: false, right: false, up: false };
+
+    // Touch support
+    canvas.addEventListener('touchstart', (e) => {
+      const touch = e.touches[0];
+      if (touch.clientX < width / 3) keys.left = true;
+      else if (touch.clientX > (2 * width) / 3) keys.right = true;
+      else keys.up = true;
+    });
+    canvas.addEventListener('touchend', () => {
+      keys = { left: false, right: false, up: false };
+    });
+
+    function update() {
+      if (keys.left) player.vx = -moveSpeed;
+      else if (keys.right) player.vx = moveSpeed;
+      else player.vx = 0;
+
+      if (keys.up && player.grounded) {
+        player.vy = jumpForce;
+        player.grounded = false;
+      }
+
+      player.vy += gravity;
+      player.x += player.vx;
+      player.y += player.vy;
+
+      // Basic collision with platforms
+      player.grounded = false;
+      for (const p of platforms) {
+        if (
+          player.x < p.x + p.width &&
+          player.x + player.width > p.x &&
+          player.y < p.y + p.height &&
+          player.y + player.height > p.y
+        ) {
+          if (player.vy > 0) {
+            player.y = p.y - player.height;
+            player.vy = 0;
+            player.grounded = true;
+          }
+        }
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, width, height);
+
+      // Background sky gradient (already handled via CSS)
+
+      // Draw platforms
+      ctx.fillStyle = '#8ED6FF';
+      for (const p of platforms) {
+        ctx.fillRect(p.x, p.y, p.width, p.height);
+      }
+
+      // Draw player
+      ctx.fillStyle = '#FF8C8C';
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
+
+    function gameLoop() {
+      update();
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
+  </script>
+</body>
+</html>
