@@ -168,6 +168,18 @@
       keys = { left: false, right: false, up: false };
     });
 
+    // Add desktop keyboard support
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = true;
+      if (e.key === 'ArrowRight' || e.key === 'd') keys.right = true;
+      if (e.key === 'ArrowUp' || e.key === 'w') keys.up = true;
+    });
+    window.addEventListener('keyup', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = false;
+      if (e.key === 'ArrowRight' || e.key === 'd') keys.right = false;
+      if (e.key === 'ArrowUp' || e.key === 'w') keys.up = false;
+    });
+
     function updateHUD() {
       hud.innerText = `VMs: ${collected.vm} | Storage: ${collected.storage} | Functions: ${collected.function}`;
     }
@@ -300,6 +312,11 @@
     function startGame() {
       overlay.classList.add('fade-out');
       setTimeout(() => {
+        overlay.style.display = 'none';
+        gameRunning = true;
+        resetPlayer();
+        update();
+        draw();
         overlay.style.display = 'none';
         gameRunning = true;
         resetPlayer();
