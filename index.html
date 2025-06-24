@@ -161,15 +161,21 @@ canvas.style.outline = 'none';
     let keys = { left: false, right: false, up: false };
 
     canvas.addEventListener('touchstart', (e) => {
+      const rect = canvas.getBoundingClientRect();
       const touch = e.touches[0];
-      if (touch.clientX < width / 3) keys.left = true;
-      else if (touch.clientX > (2 * width) / 3) keys.right = true;
+      const touchX = touch.clientX - rect.left;
+      const canvasWidth = canvas.width;
+      
+      if (touchX < canvasWidth / 3) keys.left = true;
+      else if (touchX > (2 * canvasWidth) / 3) keys.right = true;
       else keys.up = true;
+      e.preventDefault();
     });
-    canvas.addEventListener('touchend', () => {
+    canvas.addEventListener('touchend', (e) => {
       keys.left = false;
       keys.right = false;
       keys.up = false;
+      e.preventDefault();
     });
 
     // Add desktop keyboard support
@@ -200,6 +206,41 @@ canvas.style.outline = 'none';
         keys.up = false;
         e.preventDefault();
       }
+    });
+
+    // Also add keyboard support directly to canvas for better focus handling
+    canvas.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a') {
+        keys.left = true;
+        e.preventDefault();
+      }
+      if (e.key === 'ArrowRight' || e.key === 'd') {
+        keys.right = true;
+        e.preventDefault();
+      }
+      if (e.key === 'ArrowUp' || e.key === 'w') {
+        keys.up = true;
+        e.preventDefault();
+      }
+    });
+    canvas.addEventListener('keyup', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a') {
+        keys.left = false;
+        e.preventDefault();
+      }
+      if (e.key === 'ArrowRight' || e.key === 'd') {
+        keys.right = false;
+        e.preventDefault();
+      }
+      if (e.key === 'ArrowUp' || e.key === 'w') {
+        keys.up = false;
+        e.preventDefault();
+      }
+    });
+
+    // Ensure canvas gets focus when clicked for keyboard controls
+    canvas.addEventListener('click', () => {
+      canvas.focus();
     });
 
     function updateHUD() {
