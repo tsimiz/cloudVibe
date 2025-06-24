@@ -317,9 +317,6 @@
         resetPlayer();
         update();
         draw();
-        overlay.style.display = 'none';
-        gameRunning = true;
-        resetPlayer();
         gameLoop();
       }, 500);
     }
@@ -334,7 +331,7 @@
 
     function resetPlayer() {
       player.x = 100;
-      player.y = 100;
+      player.y = 400 - player.height;
       player.vx = 0;
       player.vy = 0;
       collected.vm = 0;
