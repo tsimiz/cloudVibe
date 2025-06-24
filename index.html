@@ -165,7 +165,9 @@
       else keys.up = true;
     });
     canvas.addEventListener('touchend', () => {
-      keys = { left: false, right: false, up: false };
+      keys.left = false;
+      keys.right = false;
+      keys.up = false;
     });
 
     // Add desktop keyboard support
