@@ -79,6 +79,7 @@
     <div id="message">VIBE CLOUD ISLAND</div>
     <button id="overlay-button" onclick="startGame()">Start</button>
   </div>
+  <audio id="collectSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_6ec3d8f01a.mp3?filename=collectcoin-6075.mp3"></audio>
   <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -86,6 +87,14 @@
     const message = document.getElementById('message');
     const overlayButton = document.getElementById('overlay-button');
     const hud = document.getElementById('hud');
+    const collectSound = document.getElementById('collectSound');
+
+    const vmIcon = new Image();
+    const storageIcon = new Image();
+    const functionIcon = new Image();
+    vmIcon.src = 'https://img.icons8.com/arcade/32/virtual-machine.png';
+    storageIcon.src = 'https://img.icons8.com/arcade/32/database.png';
+    functionIcon.src = 'https://img.icons8.com/arcade/32/function.png';
 
     let width, height;
     let gameRunning = false;
@@ -95,6 +104,8 @@
       storage: 0,
       function: 0
     };
+
+    const particles = [];
 
     function resizeCanvas() {
       width = window.innerWidth;
@@ -161,6 +172,19 @@
       hud.innerText = `VMs: ${collected.vm} | Storage: ${collected.storage} | Functions: ${collected.function}`;
     }
 
+    function createParticles(x, y, color) {
+      for (let i = 0; i < 10; i++) {
+        particles.push({
+          x: x + 8,
+          y: y + 8,
+          vx: (Math.random() - 0.5) * 2,
+          vy: (Math.random() - 0.5) * 2,
+          life: 30,
+          color: color
+        });
+      }
+    }
+
     function update() {
       if (keys.left) player.vx = -moveSpeed;
       else if (keys.right) player.vx = moveSpeed;
@@ -200,7 +224,20 @@
           c.collected = true;
           collected[c.type]++;
           updateHUD();
+          collectSound.currentTime = 0;
+          collectSound.play();
+          createParticles(c.x, c.y, '#fff');
         }
+      }
+
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+      }
+
+      while (particles.length > 0 && particles[0].life <= 0) {
+        particles.shift();
       }
 
       if (player.y > height) {
@@ -236,11 +273,18 @@
 
       for (const c of collectibles) {
         if (!c.collected) {
-          ctx.fillStyle = c.type === 'vm' ? '#ff9999' : c.type === 'storage' ? '#99ccff' : '#ccff99';
-          ctx.beginPath();
-          ctx.arc(c.x + 8, c.y + 8, 8, 0, Math.PI * 2);
-          ctx.fill();
+          const icon = c.type === 'vm' ? vmIcon : c.type === 'storage' ? storageIcon : functionIcon;
+          ctx.drawImage(icon, c.x, c.y, 24, 24);
         }
+      }
+
+      for (const p of particles) {
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.life / 30;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
       }
 
       ctx.restore();
@@ -279,6 +323,7 @@
       collected.vm = 0;
       collected.storage = 0;
       collected.function = 0;
+      particles.length = 0;
       updateHUD();
       for (const c of collectibles) {
         c.collected = false;
