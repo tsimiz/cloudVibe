@@ -10,7 +10,7 @@
       padding: 0;
       overflow: hidden;
       height: 100%;
-      background: linear-gradient(to top, #a0d8ef, #ffffff);
+      background: #cce7f3;
       touch-action: none;
     }
     canvas {
@@ -51,14 +51,27 @@
     const moveSpeed = 3;
     const jumpForce = -10;
 
+    let cameraX = 0;
+
+    const clouds = [
+      { x: 0, y: 50, width: 200, height: 60 },
+      { x: 400, y: 100, width: 180, height: 50 },
+      { x: 900, y: 70, width: 220, height: 70 },
+      { x: 1300, y: 90, width: 160, height: 55 }
+    ];
+
     const platforms = [
-      { x: 0, y: height - 60, width: width, height: 60 },
-      { x: 100, y: height - 150, width: 120, height: 20 },
+      { x: 0, y: 400, width: 800, height: 40 },
+      { x: 300, y: 320, width: 120, height: 20 },
+      { x: 500, y: 250, width: 100, height: 20 },
+      { x: 700, y: 180, width: 80, height: 20 },
+      { x: 900, y: 300, width: 150, height: 20 },
+      { x: 1200, y: 350, width: 200, height: 20 },
+      { x: 1600, y: 280, width: 100, height: 20 }
     ];
 
     let keys = { left: false, right: false, up: false };
 
-    // Touch support
     canvas.addEventListener('touchstart', (e) => {
       const touch = e.touches[0];
       if (touch.clientX < width / 3) keys.left = true;
@@ -83,7 +96,6 @@
       player.x += player.vx;
       player.y += player.vy;
 
-      // Basic collision with platforms
       player.grounded = false;
       for (const p of platforms) {
         if (
@@ -99,22 +111,38 @@
           }
         }
       }
+
+      cameraX = player.x - width / 2 + player.width / 2;
     }
 
     function draw() {
       ctx.clearRect(0, 0, width, height);
 
-      // Background sky gradient (already handled via CSS)
+      // Parallax clouds (slower scroll than foreground)
+      ctx.save();
+      ctx.translate(-cameraX * 0.5, 0);
+      ctx.fillStyle = '#f0f8ff';
+      for (const c of clouds) {
+        ctx.beginPath();
+        ctx.ellipse(c.x, c.y, c.width / 2, c.height / 2, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      ctx.save();
+      ctx.translate(-cameraX, 0);
 
       // Draw platforms
-      ctx.fillStyle = '#8ED6FF';
+      ctx.fillStyle = '#aad8d3';
       for (const p of platforms) {
         ctx.fillRect(p.x, p.y, p.width, p.height);
       }
 
       // Draw player
-      ctx.fillStyle = '#FF8C8C';
+      ctx.fillStyle = '#ffb6b9';
       ctx.fillRect(player.x, player.y, player.width, player.height);
+
+      ctx.restore();
     }
 
     function gameLoop() {
