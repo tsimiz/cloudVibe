@@ -174,14 +174,32 @@ canvas.style.outline = 'none';
 
     // Add desktop keyboard support
     window.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = true;
-      if (e.key === 'ArrowRight' || e.key === 'd') keys.right = true;
-      if (e.key === 'ArrowUp' || e.key === 'w') keys.up = true;
+      if (e.key === 'ArrowLeft' || e.key === 'a') {
+        keys.left = true;
+        e.preventDefault();
+      }
+      if (e.key === 'ArrowRight' || e.key === 'd') {
+        keys.right = true;
+        e.preventDefault();
+      }
+      if (e.key === 'ArrowUp' || e.key === 'w') {
+        keys.up = true;
+        e.preventDefault();
+      }
     });
     window.addEventListener('keyup', (e) => {
-      if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = false;
-      if (e.key === 'ArrowRight' || e.key === 'd') keys.right = false;
-      if (e.key === 'ArrowUp' || e.key === 'w') keys.up = false;
+      if (e.key === 'ArrowLeft' || e.key === 'a') {
+        keys.left = false;
+        e.preventDefault();
+      }
+      if (e.key === 'ArrowRight' || e.key === 'd') {
+        keys.right = false;
+        e.preventDefault();
+      }
+      if (e.key === 'ArrowUp' || e.key === 'w') {
+        keys.up = false;
+        e.preventDefault();
+      }
     });
 
     function updateHUD() {
@@ -318,6 +336,7 @@ canvas.style.outline = 'none';
       setTimeout(() => {
         overlay.style.display = 'none';
         gameRunning = true;
+        canvas.focus(); // Ensure canvas has focus when game starts
         resetPlayer();
         update();
         draw();
