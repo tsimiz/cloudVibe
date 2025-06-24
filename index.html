@@ -82,6 +82,8 @@
   <audio id="collectSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_6ec3d8f01a.mp3?filename=collectcoin-6075.mp3"></audio>
   <script>
     const canvas = document.getElementById('gameCanvas');
+canvas.setAttribute('tabindex', '0');
+canvas.style.outline = 'none';
     const ctx = canvas.getContext('2d');
     const overlay = document.getElementById('overlay');
     const message = document.getElementById('message');
@@ -348,6 +350,7 @@
   
     window.addEventListener('load', () => {
       overlay.style.opacity = '1';
+      canvas.focus();
       window.startGame = startGame;
     });
   </script>
