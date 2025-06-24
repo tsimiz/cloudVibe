@@ -19,15 +19,49 @@
       top: 0;
       left: 0;
     }
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      font-size: 24px;
+      text-align: center;
+      z-index: 10;
+    }
+    #overlay button {
+      margin-top: 20px;
+      font-size: 20px;
+      padding: 10px 20px;
+      background: #fff;
+      color: #000;
+      border: none;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
   <canvas id="gameCanvas"></canvas>
+  <div id="overlay">
+    <div id="message">VIBE CLOUD ISLAND</div>
+    <button onclick="startGame()">Start</button>
+  </div>
   <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+    const overlay = document.getElementById('overlay');
+    const message = document.getElementById('message');
 
     let width, height;
+    let gameRunning = false;
+
     function resizeCanvas() {
       width = window.innerWidth;
       height = window.innerHeight;
@@ -112,6 +146,10 @@
         }
       }
 
+      if (player.y > height) {
+        endGame();
+      }
+
       cameraX = player.x - width / 2 + player.width / 2;
     }
 
@@ -146,12 +184,31 @@
     }
 
     function gameLoop() {
+      if (!gameRunning) return;
       update();
       draw();
       requestAnimationFrame(gameLoop);
     }
 
-    gameLoop();
+    function startGame() {
+      overlay.style.display = 'none';
+      gameRunning = true;
+      resetPlayer();
+      gameLoop();
+    }
+
+    function endGame() {
+      gameRunning = false;
+      message.innerText = 'Game Over';
+      overlay.style.display = 'flex';
+    }
+
+    function resetPlayer() {
+      player.x = 100;
+      player.y = 100;
+      player.vx = 0;
+      player.vy = 0;
+    }
   </script>
 </body>
 </html>
