@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Key Test</title>
+</head>
+<body>
+  <h1>Key Test</h1>
+  <div id="output">Press any key...</div>
+  <script>
+    document.addEventListener('keydown', (e) => {
+      document.getElementById('output').innerHTML += '<br>Key pressed: ' + e.key;
+    });
+  </script>
+</body>
+</html>
