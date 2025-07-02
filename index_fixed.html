@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Cloud Island POC</title>
-
   <style>
     html, body {
       margin: 0;
@@ -13,6 +12,7 @@
       height: 100%;
       background: #cce7f3;
       touch-action: none;
+      font-family: monospace;
     }
     canvas {
       display: block;
@@ -79,19 +79,15 @@
     <div id="message">VIBE CLOUD ISLAND</div>
     <button id="overlay-button" onclick="startGame()">Start</button>
   </div>
-  <audio id="collectSound" preload="none"></audio>
   <script>
     const canvas = document.getElementById('gameCanvas');
-canvas.setAttribute('tabindex', '0');
-canvas.style.outline = 'none';
+    canvas.setAttribute('tabindex', '0');
+    canvas.style.outline = 'none';
     const ctx = canvas.getContext('2d');
     const overlay = document.getElementById('overlay');
     const message = document.getElementById('message');
     const overlayButton = document.getElementById('overlay-button');
     const hud = document.getElementById('hud');
-    const collectSound = document.getElementById('collectSound');
-
-    // Remove external image dependencies - use simple rectangles instead
 
     let width, height;
     let gameRunning = false;
@@ -169,6 +165,7 @@ canvas.style.outline = 'none';
 
     // Add desktop keyboard support
     window.addEventListener('keydown', (e) => {
+      console.log('Key down:', e.key); // Debug
       if (e.key === 'ArrowLeft' || e.key === 'a') {
         keys.left = true;
         e.preventDefault();
@@ -183,6 +180,7 @@ canvas.style.outline = 'none';
       }
     });
     window.addEventListener('keyup', (e) => {
+      console.log('Key up:', e.key); // Debug
       if (e.key === 'ArrowLeft' || e.key === 'a') {
         keys.left = false;
         e.preventDefault();
@@ -215,6 +213,7 @@ canvas.style.outline = 'none';
     }
 
     function update() {
+      console.log('Update called, keys:', keys); // Debug
       if (keys.left) player.vx = -moveSpeed;
       else if (keys.right) player.vx = moveSpeed;
       else player.vx = 0;
@@ -253,7 +252,6 @@ canvas.style.outline = 'none';
           c.collected = true;
           collected[c.type]++;
           updateHUD();
-          // Audio removed for compatibility
           createParticles(c.x, c.y, '#fff');
         }
       }
@@ -299,7 +297,7 @@ canvas.style.outline = 'none';
       ctx.fillStyle = '#ffb6b9';
       ctx.fillRect(player.x, player.y, player.width, player.height);
 
-      // Draw collectibles as simple colored rectangles
+      // Draw collectibles as simple shapes instead of images
       for (const c of collectibles) {
         if (!c.collected) {
           ctx.fillStyle = c.type === 'vm' ? '#ff6b6b' : c.type === 'storage' ? '#4ecdc4' : '#45b7d1';
@@ -332,13 +330,15 @@ canvas.style.outline = 'none';
     }
 
     function startGame() {
+      console.log('Starting game...'); // Debug
       overlay.classList.add('fade-out');
       setTimeout(() => {
         overlay.style.display = 'none';
         gameRunning = true;
         canvas.focus(); // Ensure canvas has focus when game starts
         resetPlayer();
-        gameLoop(); // Start the game loop directly
+        console.log('Game started, gameRunning:', gameRunning); // Debug
+        gameLoop(); // Remove the extra update() and draw() calls
       }, 500);
     }
 
