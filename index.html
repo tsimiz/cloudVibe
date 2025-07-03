@@ -482,6 +482,51 @@ canvas.style.outline = 'none';
       cameraX = player.x - width / 2 + player.width / 2;
     }
 
+    function drawPlayer() {
+      // Draw a white cloud character with happy face in retro 8-bit style
+      const centerX = player.x + player.width / 2;
+      const centerY = player.y + player.height / 2;
+      
+      // Draw cloud body using multiple overlapping circles for fluffy appearance
+      ctx.fillStyle = '#ffffff';
+      
+      // Main cloud body (larger central circle)
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, 14, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Cloud puffs around the main body
+      ctx.beginPath();
+      ctx.arc(centerX - 8, centerY - 4, 8, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.beginPath();
+      ctx.arc(centerX + 8, centerY - 4, 8, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.beginPath();
+      ctx.arc(centerX - 6, centerY + 6, 7, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.beginPath();
+      ctx.arc(centerX + 6, centerY + 6, 7, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Draw simple 8-bit style face
+      ctx.fillStyle = '#000000';
+      
+      // Eyes (small squares for retro look)
+      ctx.fillRect(centerX - 6, centerY - 4, 2, 2);
+      ctx.fillRect(centerX + 4, centerY - 4, 2, 2);
+      
+      // Happy smile (small arc)
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY + 2, 4, 0, Math.PI);
+      ctx.stroke();
+    }
+
     function draw() {
       const config = levelConfigs[currentLevel];
       ctx.clearRect(0, 0, width, height);
@@ -504,8 +549,8 @@ canvas.style.outline = 'none';
         ctx.fillRect(p.x, p.y, p.width, p.height);
       }
 
-      ctx.fillStyle = config.playerColor;
-      ctx.fillRect(player.x, player.y, player.width, player.height);
+      // Draw player as cloud character
+      drawPlayer();
 
       // Draw collectibles as Azure credits
       for (const c of collectibles) {
