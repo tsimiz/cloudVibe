@@ -141,7 +141,8 @@ canvas.style.outline = 'none';
           { x: 330, y: 290, collected: false, type: 'vm' },
           { x: 530, y: 220, collected: false, type: 'storage' },
           { x: 730, y: 150, collected: false, type: 'function' }
-        ]
+        ],
+        gate: { x: 1660, y: 240, width: 20, height: 40 }
       },
       2: {
         backgroundColor: '#ffeaa7',
@@ -163,7 +164,8 @@ canvas.style.outline = 'none';
           { x: 410, y: 250, collected: false, type: 'storage' },
           { x: 590, y: 190, collected: false, type: 'function' },
           { x: 950, y: 190, collected: false, type: 'vm' }
-        ]
+        ],
+        gate: { x: 1400, y: 300, width: 20, height: 40 }
       },
       3: {
         backgroundColor: '#d1f2eb',
@@ -187,7 +189,8 @@ canvas.style.outline = 'none';
           { x: 480, y: 170, collected: false, type: 'function' },
           { x: 780, y: 170, collected: false, type: 'vm' },
           { x: 1080, y: 170, collected: false, type: 'storage' }
-        ]
+        ],
+        gate: { x: 1360, y: 280, width: 20, height: 40 }
       },
       4: {
         backgroundColor: '#fab1a0',
@@ -215,7 +218,8 @@ canvas.style.outline = 'none';
           { x: 610, y: 120, collected: false, type: 'vm' },
           { x: 730, y: 70, collected: false, type: 'storage' },
           { x: 970, y: 170, collected: false, type: 'function' }
-        ]
+        ],
+        gate: { x: 1460, y: 310, width: 20, height: 40 }
       },
       5: {
         backgroundColor: '#a29bfe',
@@ -248,7 +252,8 @@ canvas.style.outline = 'none';
           { x: 710, y: 90, collected: false, type: 'storage' },
           { x: 810, y: 50, collected: false, type: 'function' },
           { x: 1010, y: 130, collected: false, type: 'vm' }
-        ]
+        ],
+        gate: { x: 1640, y: 320, width: 20, height: 40 }
       }
     };
 
@@ -287,6 +292,8 @@ canvas.style.outline = 'none';
     // Current level platforms and collectibles (will be updated based on currentLevel)
     let platforms = [];
     let collectibles = [];
+    let gate = null;
+    let gateVisible = false;
 
     let keys = { left: false, right: false, up: false };
 
@@ -346,6 +353,8 @@ canvas.style.outline = 'none';
       
       platforms = [...config.platforms];
       collectibles = config.collectibles.map(c => ({ ...c, collected: false }));
+      gate = { ...config.gate };
+      gateVisible = false;
       
       // Update background color
       document.body.style.background = config.backgroundColor;
@@ -358,32 +367,8 @@ canvas.style.outline = 'none';
       const collectedCount = collectibles.filter(c => c.collected).length;
       
       if (collectedCount === totalCollectibles) {
-        if (currentLevel < maxLevel) {
-          // Advance to next level
-          currentLevel++;
-          resetPlayer();
-          loadLevel(currentLevel);
-          
-          // Show level complete message briefly
-          message.innerText = `Level ${currentLevel - 1} Complete! Starting Level ${currentLevel}`;
-          overlay.style.display = 'flex';
-          overlay.classList.remove('fade-out');
-          
-          setTimeout(() => {
-            overlay.classList.add('fade-out');
-            setTimeout(() => {
-              overlay.style.display = 'none';
-              gameRunning = true;
-            }, 500);
-          }, 2000);
-        } else {
-          // Game complete!
-          gameRunning = false;
-          message.innerText = 'CONGRATULATIONS! ALL LEVELS COMPLETE!';
-          overlayButton.innerText = 'Play Again';
-          overlay.classList.remove('fade-out');
-          overlay.style.display = 'flex';
-        }
+        // Show the gate when all collectibles are collected
+        gateVisible = true;
       }
     }
 
@@ -445,6 +430,41 @@ canvas.style.outline = 'none';
         }
       }
 
+      // Check gate collision
+      if (gateVisible && gate &&
+          player.x < gate.x + gate.width &&
+          player.x + player.width > gate.x &&
+          player.y < gate.y + gate.height &&
+          player.y + player.height > gate.y) {
+        
+        if (currentLevel < maxLevel) {
+          // Advance to next level
+          currentLevel++;
+          resetPlayer();
+          loadLevel(currentLevel);
+          
+          // Show level complete message briefly
+          message.innerText = `Level ${currentLevel - 1} Complete! Starting Level ${currentLevel}`;
+          overlay.style.display = 'flex';
+          overlay.classList.remove('fade-out');
+          
+          setTimeout(() => {
+            overlay.classList.add('fade-out');
+            setTimeout(() => {
+              overlay.style.display = 'none';
+              gameRunning = true;
+            }, 500);
+          }, 2000);
+        } else {
+          // Game complete!
+          gameRunning = false;
+          message.innerText = '🏆 All levels completed! You are an Azure master! 🏆';
+          overlayButton.innerText = 'Play Again';
+          overlay.classList.remove('fade-out');
+          overlay.style.display = 'flex';
+        }
+      }
+
       for (const p of particles) {
         p.x += p.vx;
         p.y += p.vy;
@@ -498,6 +518,22 @@ canvas.style.outline = 'none';
           ctx.font = '8px monospace';
           ctx.fillText(c.type.substr(0, 2).toUpperCase(), c.x, c.y - 2);
         }
+      }
+
+      // Draw gate if visible
+      if (gateVisible && gate) {
+        ctx.fillStyle = '#ffd700'; // Gold color for the gate
+        ctx.fillRect(gate.x, gate.y, gate.width, gate.height);
+        
+        // Add gate decoration
+        ctx.fillStyle = '#000';
+        ctx.font = '12px monospace';
+        ctx.fillText('🚪', gate.x - 5, gate.y - 5);
+        
+        // Add "GATE" text below
+        ctx.fillStyle = '#000';
+        ctx.font = '8px monospace';
+        ctx.fillText('GATE', gate.x - 5, gate.y + gate.height + 12);
       }
 
       for (const p of particles) {
