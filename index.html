@@ -64,6 +64,19 @@
       border-radius: 4px;
       z-index: 5;
     }
+    #level-display {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-family: monospace;
+      font-size: 14px;
+      font-weight: bold;
+      color: #000;
+      background: rgba(255,255,255,0.8);
+      padding: 8px 12px;
+      border-radius: 4px;
+      z-index: 5;
+    }
     @keyframes fadeIn {
       to { opacity: 1; }
     }
@@ -75,6 +88,7 @@
 <body>
   <canvas id="gameCanvas"></canvas>
   <div id="hud">VMs: 0 | Storage: 0 | Functions: 0</div>
+  <div id="level-display">Level 1</div>
   <div id="overlay">
     <div id="message">VIBE CLOUD ISLAND</div>
     <button id="overlay-button" onclick="startGame()">Start</button>
@@ -89,12 +103,15 @@ canvas.style.outline = 'none';
     const message = document.getElementById('message');
     const overlayButton = document.getElementById('overlay-button');
     const hud = document.getElementById('hud');
+    const levelDisplay = document.getElementById('level-display');
     const collectSound = document.getElementById('collectSound');
 
     // Remove external image dependencies - use simple rectangles instead
 
     let width, height;
     let gameRunning = false;
+    let currentLevel = 1;
+    const maxLevel = 5;
 
     const collected = {
       vm: 0,
@@ -103,6 +120,137 @@ canvas.style.outline = 'none';
     };
 
     const particles = [];
+
+    // Level configurations with different colors and layouts
+    const levelConfigs = {
+      1: {
+        backgroundColor: '#cce7f3',
+        platformColor: '#aad8d3',
+        playerColor: '#ffb6b9',
+        cloudColor: '#f0f8ff',
+        platforms: [
+          { x: 0, y: 400, width: 800, height: 40 },
+          { x: 300, y: 320, width: 120, height: 20 },
+          { x: 500, y: 250, width: 100, height: 20 },
+          { x: 700, y: 180, width: 120, height: 20 },
+          { x: 900, y: 300, width: 150, height: 20 },
+          { x: 1200, y: 350, width: 200, height: 20 },
+          { x: 1600, y: 280, width: 120, height: 20 }
+        ],
+        collectibles: [
+          { x: 330, y: 290, collected: false, type: 'vm' },
+          { x: 530, y: 220, collected: false, type: 'storage' },
+          { x: 730, y: 150, collected: false, type: 'function' }
+        ]
+      },
+      2: {
+        backgroundColor: '#ffeaa7',
+        platformColor: '#fdcb6e',
+        playerColor: '#e17055',
+        cloudColor: '#ffffff',
+        platforms: [
+          { x: 0, y: 400, width: 600, height: 40 },
+          { x: 200, y: 340, width: 100, height: 20 },
+          { x: 380, y: 280, width: 100, height: 20 },
+          { x: 560, y: 220, width: 100, height: 20 },
+          { x: 740, y: 160, width: 100, height: 20 },
+          { x: 920, y: 220, width: 120, height: 20 },
+          { x: 1120, y: 280, width: 100, height: 20 },
+          { x: 1300, y: 340, width: 150, height: 20 }
+        ],
+        collectibles: [
+          { x: 230, y: 310, collected: false, type: 'vm' },
+          { x: 410, y: 250, collected: false, type: 'storage' },
+          { x: 590, y: 190, collected: false, type: 'function' },
+          { x: 950, y: 190, collected: false, type: 'vm' }
+        ]
+      },
+      3: {
+        backgroundColor: '#d1f2eb',
+        platformColor: '#58d68d',
+        playerColor: '#2e86ab',
+        cloudColor: '#a8e6cf',
+        platforms: [
+          { x: 0, y: 400, width: 500, height: 40 },
+          { x: 150, y: 320, width: 80, height: 20 },
+          { x: 300, y: 260, width: 80, height: 20 },
+          { x: 450, y: 200, width: 80, height: 20 },
+          { x: 600, y: 140, width: 80, height: 20 },
+          { x: 750, y: 200, width: 80, height: 20 },
+          { x: 900, y: 260, width: 80, height: 20 },
+          { x: 1050, y: 200, width: 80, height: 20 },
+          { x: 1200, y: 320, width: 200, height: 20 }
+        ],
+        collectibles: [
+          { x: 180, y: 290, collected: false, type: 'vm' },
+          { x: 330, y: 230, collected: false, type: 'storage' },
+          { x: 480, y: 170, collected: false, type: 'function' },
+          { x: 780, y: 170, collected: false, type: 'vm' },
+          { x: 1080, y: 170, collected: false, type: 'storage' }
+        ]
+      },
+      4: {
+        backgroundColor: '#fab1a0',
+        platformColor: '#e17055',
+        playerColor: '#74b9ff',
+        cloudColor: '#ffeaa7',
+        platforms: [
+          { x: 0, y: 400, width: 400, height: 40 },
+          { x: 100, y: 350, width: 60, height: 20 },
+          { x: 220, y: 300, width: 60, height: 20 },
+          { x: 340, y: 250, width: 60, height: 20 },
+          { x: 460, y: 200, width: 60, height: 20 },
+          { x: 580, y: 150, width: 60, height: 20 },
+          { x: 700, y: 100, width: 60, height: 20 },
+          { x: 820, y: 150, width: 60, height: 20 },
+          { x: 940, y: 200, width: 60, height: 20 },
+          { x: 1060, y: 250, width: 60, height: 20 },
+          { x: 1180, y: 300, width: 60, height: 20 },
+          { x: 1300, y: 350, width: 200, height: 20 }
+        ],
+        collectibles: [
+          { x: 130, y: 320, collected: false, type: 'vm' },
+          { x: 250, y: 270, collected: false, type: 'storage' },
+          { x: 370, y: 220, collected: false, type: 'function' },
+          { x: 610, y: 120, collected: false, type: 'vm' },
+          { x: 730, y: 70, collected: false, type: 'storage' },
+          { x: 970, y: 170, collected: false, type: 'function' }
+        ]
+      },
+      5: {
+        backgroundColor: '#a29bfe',
+        platformColor: '#6c5ce7',
+        playerColor: '#fd79a8',
+        cloudColor: '#e84393',
+        platforms: [
+          { x: 0, y: 400, width: 300, height: 40 },
+          { x: 80, y: 360, width: 50, height: 20 },
+          { x: 180, y: 320, width: 50, height: 20 },
+          { x: 280, y: 280, width: 50, height: 20 },
+          { x: 380, y: 240, width: 50, height: 20 },
+          { x: 480, y: 200, width: 50, height: 20 },
+          { x: 580, y: 160, width: 50, height: 20 },
+          { x: 680, y: 120, width: 50, height: 20 },
+          { x: 780, y: 80, width: 50, height: 20 },
+          { x: 880, y: 120, width: 50, height: 20 },
+          { x: 980, y: 160, width: 50, height: 20 },
+          { x: 1080, y: 200, width: 50, height: 20 },
+          { x: 1180, y: 240, width: 50, height: 20 },
+          { x: 1280, y: 280, width: 50, height: 20 },
+          { x: 1380, y: 320, width: 50, height: 20 },
+          { x: 1480, y: 360, width: 200, height: 20 }
+        ],
+        collectibles: [
+          { x: 110, y: 330, collected: false, type: 'vm' },
+          { x: 210, y: 290, collected: false, type: 'storage' },
+          { x: 310, y: 250, collected: false, type: 'function' },
+          { x: 510, y: 170, collected: false, type: 'vm' },
+          { x: 710, y: 90, collected: false, type: 'storage' },
+          { x: 810, y: 50, collected: false, type: 'function' },
+          { x: 1010, y: 130, collected: false, type: 'vm' }
+        ]
+      }
+    };
 
     function resizeCanvas() {
       width = window.innerWidth;
@@ -136,22 +284,9 @@ canvas.style.outline = 'none';
       { x: 1300, y: 90, width: 160, height: 55 }
     ];
 
-    const platforms = [
-      { x: 0, y: 400, width: 800, height: 40 },
-      { x: 300, y: 320, width: 120, height: 20 },
-      { x: 500, y: 250, width: 100, height: 20 },
-      { x: 700, y: 180, width: 80, height: 20 },
-      { x: 900, y: 300, width: 150, height: 20 },
-      { x: 1200, y: 350, width: 200, height: 20 },
-      { x: 1600, y: 280, width: 100, height: 20 }
-    ];
-
-    const collectibles = [
-      { x: 330, y: 290, collected: false, type: 'vm' },
-      { x: 510, y: 220, collected: false, type: 'storage' },
-      { x: 910, y: 270, collected: false, type: 'function' },
-      { x: 1250, y: 320, collected: false, type: 'vm' }
-    ];
+    // Current level platforms and collectibles (will be updated based on currentLevel)
+    let platforms = [];
+    let collectibles = [];
 
     let keys = { left: false, right: false, up: false };
 
@@ -199,6 +334,57 @@ canvas.style.outline = 'none';
 
     function updateHUD() {
       hud.innerText = `VMs: ${collected.vm} | Storage: ${collected.storage} | Functions: ${collected.function}`;
+    }
+
+    function updateLevelDisplay() {
+      levelDisplay.innerText = `Level ${currentLevel}`;
+    }
+
+    function loadLevel(level) {
+      const config = levelConfigs[level];
+      if (!config) return;
+      
+      platforms = [...config.platforms];
+      collectibles = config.collectibles.map(c => ({ ...c, collected: false }));
+      
+      // Update background color
+      document.body.style.background = config.backgroundColor;
+      
+      updateLevelDisplay();
+    }
+
+    function checkLevelComplete() {
+      const totalCollectibles = collectibles.length;
+      const collectedCount = collectibles.filter(c => c.collected).length;
+      
+      if (collectedCount === totalCollectibles) {
+        if (currentLevel < maxLevel) {
+          // Advance to next level
+          currentLevel++;
+          resetPlayer();
+          loadLevel(currentLevel);
+          
+          // Show level complete message briefly
+          message.innerText = `Level ${currentLevel - 1} Complete! Starting Level ${currentLevel}`;
+          overlay.style.display = 'flex';
+          overlay.classList.remove('fade-out');
+          
+          setTimeout(() => {
+            overlay.classList.add('fade-out');
+            setTimeout(() => {
+              overlay.style.display = 'none';
+              gameRunning = true;
+            }, 500);
+          }, 2000);
+        } else {
+          // Game complete!
+          gameRunning = false;
+          message.innerText = 'CONGRATULATIONS! ALL LEVELS COMPLETE!';
+          overlayButton.innerText = 'Play Again';
+          overlay.classList.remove('fade-out');
+          overlay.style.display = 'flex';
+        }
+      }
     }
 
     function createParticles(x, y, color) {
@@ -255,6 +441,7 @@ canvas.style.outline = 'none';
           updateHUD();
           // Audio removed for compatibility
           createParticles(c.x, c.y, '#fff');
+          checkLevelComplete();
         }
       }
 
@@ -276,11 +463,12 @@ canvas.style.outline = 'none';
     }
 
     function draw() {
+      const config = levelConfigs[currentLevel];
       ctx.clearRect(0, 0, width, height);
 
       ctx.save();
       ctx.translate(-cameraX * 0.5, 0);
-      ctx.fillStyle = '#f0f8ff';
+      ctx.fillStyle = config.cloudColor;
       for (const c of clouds) {
         ctx.beginPath();
         ctx.ellipse(c.x, c.y, c.width / 2, c.height / 2, 0, 0, Math.PI * 2);
@@ -291,12 +479,12 @@ canvas.style.outline = 'none';
       ctx.save();
       ctx.translate(-cameraX, 0);
 
-      ctx.fillStyle = '#aad8d3';
+      ctx.fillStyle = config.platformColor;
       for (const p of platforms) {
         ctx.fillRect(p.x, p.y, p.width, p.height);
       }
 
-      ctx.fillStyle = '#ffb6b9';
+      ctx.fillStyle = config.playerColor;
       ctx.fillRect(player.x, player.y, player.width, player.height);
 
       // Draw collectibles as simple colored rectangles
@@ -337,7 +525,7 @@ canvas.style.outline = 'none';
         overlay.style.display = 'none';
         gameRunning = true;
         canvas.focus(); // Ensure canvas has focus when game starts
-        resetPlayer();
+        resetGame();
         gameLoop(); // Start the game loop directly
       }, 500);
     }
@@ -364,8 +552,15 @@ canvas.style.outline = 'none';
         c.collected = false;
       }
     }
+
+    function resetGame() {
+      currentLevel = 1;
+      loadLevel(currentLevel);
+      resetPlayer();
+    }
   
     window.addEventListener('load', () => {
+      loadLevel(currentLevel); // Initialize first level
       overlay.style.opacity = '1';
       canvas.focus();
       window.startGame = startGame;
