@@ -87,7 +87,7 @@
 </head>
 <body>
   <canvas id="gameCanvas"></canvas>
-  <div id="hud">VMs: 0 | Storage: 0 | Functions: 0</div>
+  <div id="hud">Azure Credits: 0</div>
   <div id="level-display">Level 1</div>
   <div id="overlay">
     <div id="message">VIBE CLOUD ISLAND</div>
@@ -114,9 +114,7 @@ canvas.style.outline = 'none';
     const maxLevel = 5;
 
     const collected = {
-      vm: 0,
-      storage: 0,
-      function: 0
+      credits: 0
     };
 
     const particles = [];
@@ -139,10 +137,10 @@ canvas.style.outline = 'none';
           { x: 1500, y: 280, width: 120, height: 20 }
         ],
         collectibles: [
-          { x: 330, y: 290, collected: false, type: 'vm' },
-          { x: 530, y: 220, collected: false, type: 'storage' },
-          { x: 730, y: 150, collected: false, type: 'function' },
-          { x: 1150, y: 295, collected: false, type: 'vm' }
+          { x: 330, y: 290, collected: false, type: 'credit' },
+          { x: 530, y: 220, collected: false, type: 'credit' },
+          { x: 730, y: 150, collected: false, type: 'credit' },
+          { x: 1150, y: 295, collected: false, type: 'credit' }
         ],
         gate: { x: 1560, y: 240, width: 20, height: 40 }
       },
@@ -162,10 +160,10 @@ canvas.style.outline = 'none';
           { x: 1300, y: 340, width: 150, height: 20 }
         ],
         collectibles: [
-          { x: 230, y: 310, collected: false, type: 'vm' },
-          { x: 410, y: 250, collected: false, type: 'storage' },
-          { x: 590, y: 190, collected: false, type: 'function' },
-          { x: 950, y: 190, collected: false, type: 'vm' }
+          { x: 230, y: 310, collected: false, type: 'credit' },
+          { x: 410, y: 250, collected: false, type: 'credit' },
+          { x: 590, y: 190, collected: false, type: 'credit' },
+          { x: 950, y: 190, collected: false, type: 'credit' }
         ],
         gate: { x: 1400, y: 300, width: 20, height: 40 }
       },
@@ -186,11 +184,11 @@ canvas.style.outline = 'none';
           { x: 1200, y: 320, width: 200, height: 20 }
         ],
         collectibles: [
-          { x: 180, y: 290, collected: false, type: 'vm' },
-          { x: 330, y: 230, collected: false, type: 'storage' },
-          { x: 480, y: 170, collected: false, type: 'function' },
-          { x: 780, y: 170, collected: false, type: 'vm' },
-          { x: 1080, y: 170, collected: false, type: 'storage' }
+          { x: 180, y: 290, collected: false, type: 'credit' },
+          { x: 330, y: 230, collected: false, type: 'credit' },
+          { x: 480, y: 170, collected: false, type: 'credit' },
+          { x: 780, y: 170, collected: false, type: 'credit' },
+          { x: 1080, y: 170, collected: false, type: 'credit' }
         ],
         gate: { x: 1360, y: 280, width: 20, height: 40 }
       },
@@ -214,12 +212,12 @@ canvas.style.outline = 'none';
           { x: 1300, y: 350, width: 200, height: 20 }
         ],
         collectibles: [
-          { x: 130, y: 320, collected: false, type: 'vm' },
-          { x: 250, y: 270, collected: false, type: 'storage' },
-          { x: 370, y: 220, collected: false, type: 'function' },
-          { x: 610, y: 120, collected: false, type: 'vm' },
-          { x: 730, y: 70, collected: false, type: 'storage' },
-          { x: 970, y: 170, collected: false, type: 'function' }
+          { x: 130, y: 320, collected: false, type: 'credit' },
+          { x: 250, y: 270, collected: false, type: 'credit' },
+          { x: 370, y: 220, collected: false, type: 'credit' },
+          { x: 610, y: 120, collected: false, type: 'credit' },
+          { x: 730, y: 70, collected: false, type: 'credit' },
+          { x: 970, y: 170, collected: false, type: 'credit' }
         ],
         gate: { x: 1460, y: 310, width: 20, height: 40 }
       },
@@ -247,13 +245,13 @@ canvas.style.outline = 'none';
           { x: 1480, y: 360, width: 200, height: 20 }
         ],
         collectibles: [
-          { x: 110, y: 330, collected: false, type: 'vm' },
-          { x: 210, y: 290, collected: false, type: 'storage' },
-          { x: 310, y: 250, collected: false, type: 'function' },
-          { x: 510, y: 170, collected: false, type: 'vm' },
-          { x: 710, y: 90, collected: false, type: 'storage' },
-          { x: 810, y: 50, collected: false, type: 'function' },
-          { x: 1010, y: 130, collected: false, type: 'vm' }
+          { x: 110, y: 330, collected: false, type: 'credit' },
+          { x: 210, y: 290, collected: false, type: 'credit' },
+          { x: 310, y: 250, collected: false, type: 'credit' },
+          { x: 510, y: 170, collected: false, type: 'credit' },
+          { x: 710, y: 90, collected: false, type: 'credit' },
+          { x: 810, y: 50, collected: false, type: 'credit' },
+          { x: 1010, y: 130, collected: false, type: 'credit' }
         ],
         gate: { x: 1640, y: 320, width: 20, height: 40 }
       }
@@ -342,7 +340,7 @@ canvas.style.outline = 'none';
     });
 
     function updateHUD() {
-      hud.innerText = `VMs: ${collected.vm} | Storage: ${collected.storage} | Functions: ${collected.function}`;
+      hud.innerText = `Azure Credits: ${collected.credits}`;
     }
 
     function updateLevelDisplay() {
@@ -424,7 +422,7 @@ canvas.style.outline = 'none';
             player.y < c.y + 16 &&
             player.y + player.height > c.y) {
           c.collected = true;
-          collected[c.type]++;
+          collected.credits++;
           updateHUD();
           // Audio removed for compatibility
           createParticles(c.x, c.y, '#fff');
@@ -446,7 +444,7 @@ canvas.style.outline = 'none';
           loadLevel(currentLevel);
           
           // Show level complete message briefly
-          message.innerText = `Level ${currentLevel - 1} Complete! Starting Level ${currentLevel}`;
+          message.innerText = `Level ${currentLevel - 1} Complete! Starting Level ${currentLevel} - Azure Credits: ${collected.credits}`;
           overlay.style.display = 'flex';
           overlay.classList.remove('fade-out');
           
@@ -509,16 +507,17 @@ canvas.style.outline = 'none';
       ctx.fillStyle = config.playerColor;
       ctx.fillRect(player.x, player.y, player.width, player.height);
 
-      // Draw collectibles as simple colored rectangles
+      // Draw collectibles as Azure credits
       for (const c of collectibles) {
         if (!c.collected) {
-          ctx.fillStyle = c.type === 'vm' ? '#ff6b6b' : c.type === 'storage' ? '#4ecdc4' : '#45b7d1';
+          // Draw Azure blue background
+          ctx.fillStyle = '#0078d4';
           ctx.fillRect(c.x, c.y, 16, 16);
           
-          // Add text label
-          ctx.fillStyle = '#000';
-          ctx.font = '8px monospace';
-          ctx.fillText(c.type.substr(0, 2).toUpperCase(), c.x, c.y - 2);
+          // Add $ symbol for credits
+          ctx.fillStyle = '#fff';
+          ctx.font = 'bold 12px monospace';
+          ctx.fillText('$', c.x + 4, c.y + 12);
         }
       }
 
@@ -558,6 +557,9 @@ canvas.style.outline = 'none';
     }
 
     function startGame() {
+      // Update message to show current credits
+      message.innerText = `Level ${currentLevel} - Azure Credits: ${collected.credits}`;
+      
       overlay.classList.add('fade-out');
       setTimeout(() => {
         overlay.style.display = 'none';
@@ -581,9 +583,7 @@ canvas.style.outline = 'none';
       player.y = 400 - player.height;
       player.vx = 0;
       player.vy = 0;
-      collected.vm = 0;
-      collected.storage = 0;
-      collected.function = 0;
+      // Don't reset credits - keep them across levels
       particles.length = 0;
       updateHUD();
       for (const c of collectibles) {
@@ -593,6 +593,7 @@ canvas.style.outline = 'none';
 
     function resetGame() {
       currentLevel = 1;
+      collected.credits = 0; // Reset credits only when starting a new game
       loadLevel(currentLevel);
       resetPlayer();
     }
